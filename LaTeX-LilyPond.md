@@ -32,6 +32,18 @@ and make sure that the `export $PATH` line is included at the end
 **References:**
 - http://lilypond.org/unix.html
 
+Installing timidity
+==============================================================================
+Used for converting .midi to .mp3 files.
+Soundfont is also required so that timidity has a set of instruments to play
+
+https://unix.stackexchange.com/questions/97883/timidity-no-instrument-mapped-to-tone-bank-0-no-idea-which-one-is-missing
+'''
+sudo apt install timidity fluid-soundfont-gm
+sudo sed -e 's|^source|#source|' -e '$a source /etc/timidity/fluidr3_gm.cfg' -i /etc/timidity/timidity.cfg
+sudo /etc/init.d/timidity restart
+```
+
 
 Installing Frescobaldi
 ==============================================================================
