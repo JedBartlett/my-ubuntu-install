@@ -1,13 +1,18 @@
- 
-Installing TexStudio & texlive
+
+Installing TexStudio & texlive & lylauatex
 ==============================================================================
 **References:**
 - https://milq.github.io/install-latex-ubuntu-debian/
-
+- **xzdec** is needed by the texlive package manager tlmgr to function
+  properly.
+- Instructions for downgrading the tlmgr repo was taken from:
+  https://tex.stackexchange.com/questions/429714/tlmgr-remote-repository-is-newer-than-local-2017-2018
 ```
 sudo apt update
-sudo apt install texlive-full texstudio
-
+sudo apt install texlive-full texstudio xzdec
+# Downgrade the server used (Bionic packages are only shipping 2018 right now)
+tlmgr option repository ftp://tug.org/historic/systems/texlive/2017/tlnet-final
+tlmgr install lyluatex
 ```
 
 
@@ -82,7 +87,7 @@ sdk install gradle 4.6
 - [Step-by-step install gradle on ubuntu
      ](https://howtoprogram.xyz/2016/09/06/install-gradle-ubuntu-16-04/)
 
-     
+
 Install Tesseract for OCR
 ---------------------------------------
 ```
