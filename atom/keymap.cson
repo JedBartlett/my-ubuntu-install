@@ -1,0 +1,2 @@
+'[data-grammar="source lilypond"]':
+  'ctrl-alt-b': 'lilycompile:compile'

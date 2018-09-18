@@ -1,0 +1,16 @@
+"*":
+  core:
+    telemetryConsent: "limited"
+  "exception-reporting":
+    userId: "4a5a96eb-a97b-40a6-b0e5-0dc8c8fae6e4"
+  latex:
+    enableShellEscape: true
+    engine: "lualatex"
+    openResultInBackground: false
+    opener: "pdf-view"
+  lilycompile:
+    activateFilePane: false
+    compileAfterSave: false
+    pdfSettings: {}
+  "pdf-view":
+    reverseSyncBehaviour: "Double click"
