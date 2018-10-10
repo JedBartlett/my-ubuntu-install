@@ -5,7 +5,7 @@ Installing Visual Studio Code
 ------------------------------
 
 Initial setup is easy following instructions on the website:
-https://code.visualstudio.com/docs/setup/linux
+[Visual Studio Setup for Linux](https://code.visualstudio.com/docs/setup/linux)
 
 Copied from there:
 
@@ -40,7 +40,7 @@ extensions=( \
     truefire.lilypond \
     vsmobile.vscode-react-native \
     )
-for i in "${extensions[@]}"; do 
+for i in "${extensions[@]}"; do
     code --install-extension $i
 done
 ```
