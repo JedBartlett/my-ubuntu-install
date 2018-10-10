@@ -31,7 +31,16 @@ Install Extensions
 ------------------
 
 ```bash
-code --install-extension DavidAnson.vscode-markdownlint
-code --install-extension James-Yu.latex-workshop
-code --install-extension truefire.lilypond
+extensions=( \
+    Dart-Code.dart-code \
+    DavidAnson.vscode-markdownlint \
+    James-Yu.latex-workshop \
+    ms-python.python ms-vscode.Go \
+    rogalmic.bash-debug \
+    truefire.lilypond \
+    vsmobile.vscode-react-native \
+    )
+for i in "${extensions[@]}"; do 
+    code --install-extension $i
+done
 ```
