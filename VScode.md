@@ -26,3 +26,12 @@ Remove the default settings file and replace it with a symlink
 rm ~/.config/Code/User/settings.json
 ln -s ./VScode/settings.json ~/.config/Code/User/settings.json
 ```
+
+Install Extensions
+------------------
+
+```bash
+code --install-extension DavidAnson.vscode-markdownlint
+code --install-extension James-Yu.latex-workshop
+code --install-extension truefire.lilypond
+```
