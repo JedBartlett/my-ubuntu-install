@@ -1,5 +1,6 @@
 {
     "python.pythonPath": "/usr/bin/python3",
     "python.jediEnabled": false,
-    "git.autofetch": true
+    "git.autofetch": true,
+    "git.confirmSync": false
 }
