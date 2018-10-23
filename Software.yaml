@@ -1,91 +1,99 @@
-# Each peice of software installed on the system is listed below.
-# The recipe for setting up each peice of software can include any of
-# the following steps, which are executed in the order here:
+# Each peice of software installed on the system is listed as a task,
+# and for each program, there are Windows and Ubuntu instructions.
 #
-# - ppa_setup (Literal Block Scalar)
+# The recipe for setting up each peice of software can include any of
+# the following steps, which are executed in the order here, for the
+# specified platform (windows or ubuntu are supported)
+# ubuntu:
+#   ppa_setup (Literal Block Scalar)
 #           All lines in the scalar of these are executed and apt update is
 #           executed to update the software list as a first pass before any
 #           other steps are run
-# - fetch (Literal Block Scalar)
+#   fetch (Literal Block Scalar)
 #           All lines in the scalar are executed
-# - apt_install (list)
+#   apt_install (list)
 #           All apt packages listed are installed
-# - install (Literal Block Scalar)
+#   install (Literal Block Scalar)
 #           All lines in the scalar are executed
-# - post_install (Literal Block Scalar)
+#   post_install (Literal Block Scalar)
 #           All lines in the scalar are executed
-# - simlink (dictionary)
+#   simlink (dictionary)
 #     <name>:
 #       replace_file : <file to replace>
 #       use_file : <file to symlink to>
 #       replace_folder : <folder to replace>
 #       use_folder : <folder to symlink to>
-# - extensions_tool (string)
+#   extensions_tool (string)
 #           The command to prepend in front of all extensions
-# - extensions (list)
+#   extensions (list)
 #           Each argument to pass to the extensions_tool
+# windows:
 ---
 ##############################################################################
 apt-transport-https:
-  # This is something that several different microsoft tools seem to want installed
-  check_install: dpkg -l apt-transport-https
-  apt_install:
-    - apt-transport-https
+  ubuntu:
+    # This is something that several different microsoft tools seem to want installed
+    check_install: dpkg -l apt-transport-https
+    apt_install:
+      - apt-transport-https
 
 ##############################################################################
 latex:
-  # - https://milq.github.io/install-latex-ubuntu-debian/
-  apt_install:
-    - texlive-full
-    # Install the latex-optimized texstudio as a backup editor
-    - texstudio
-    # xzdec is needed by the texlive package manager
-    - xzdec
+  ubuntu:
+    # - https://milq.github.io/install-latex-ubuntu-debian/
+    apt_install:
+      - texlive-full
+      # Install the latex-optimized texstudio as a backup editor
+      - texstudio
+      # xzdec is needed by the texlive package manager
+      - xzdec
 
-  post_install: |
-    # Downgrade the server used (Bionic packages are only shipping 2018 right now)
-    # - Instructions for downgrading the tlmgr repo was taken from:
-    #   https://tex.stackexchange.com/questions/429714/tlmgr-remote-repository-is-newer-than-local-2017-2018
-    tlmgr option repository ftp://tug.org/historic/systems/texlive/2017/tlnet-final
+    post_install: |
+      # Downgrade the server used (Bionic packages are only shipping 2018 right now)
+      # - Instructions for downgrading the tlmgr repo was taken from:
+      #   https://tex.stackexchange.com/questions/429714/tlmgr-remote-repository-is-newer-than-local-2017-2018
+      tlmgr option repository ftp://tug.org/historic/systems/texlive/2017/tlnet-final
 
-  extensions_tool: tlmgr
-  extensions:
-    - lyluatex
+    extensions_tool: tlmgr
+    extensions:
+      - lyluatex
 
 ##############################################################################
 lilypond:
-  # http://lilypond.org/unix.html
-  check_install: lilypond --version
-  fetch: |
-    cd ~/Downloads/ & wget http://download.linuxaudio.org/lilypond/binaries/linux-64/lilypond-2.18.2-1.linux-64.sh
-  install:
-    sh ~/Downloads/lilypond-2.18.2-1.linux-64.sh
+  ubuntu:
+    # http://lilypond.org/unix.html
+    check_install: lilypond --version
+    fetch: |
+      cd ~/Downloads/ & wget http://download.linuxaudio.org/lilypond/binaries/linux-64/lilypond-2.18.2-1.linux-64.sh
+    install:
+      sh ~/Downloads/lilypond-2.18.2-1.linux-64.sh
 
 ##############################################################################
 vscode:
-  # Initial setup is easy following instructions on the website:
-  # https://code.visualstudio.com/docs/setup/linux
-  ppa_setup: |
-    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-    install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
-    echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
-  apt_install:
-    - code
-  symlink:
-    settings_json:
-      replace_file: ~/.config/Code/User/settings.json
-      use_file: ./VScode/settings.json
-      
-  extensions_tool: code --install-extension
-  extensions:
-    # General Tools
-    - rogalmic.bash-debug
-    - bat67.markdown-extension-pack
-    - redhat.vscode-yaml
-    # Textual Editing (graphviz, latex, lillypond)
-    - Stephanvs.dot
-    - James-Yu.latex-workshop
-    - truefire.lilypond
-    # Dart (Just in case)
-    - Dart-Code.dart-code
+  ubuntu:
+    # Initial setup is easy following instructions on the website:
+    # https://code.visualstudio.com/docs/setup/linux
+    ppa_setup: |
+      curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+      install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+      echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
+    apt_install:
+      - code
+    symlink:
+      settings_json:
+        replace_file: ~/.config/Code/User/settings.json
+        use_file: ./VScode/settings.json
+        
+    extensions_tool: code --install-extension
+    extensions:
+      # General Tools
+      - rogalmic.bash-debug
+      - bat67.markdown-extension-pack
+      - redhat.vscode-yaml
+      # Textual Editing (graphviz, latex, lillypond)
+      - Stephanvs.dot
+      - James-Yu.latex-workshop
+      - truefire.lilypond
+      # Dart (Just in case)
+      - Dart-Code.dart-code
 ...

@@ -15,7 +15,7 @@ def _run_scalar_cmds(commandString):
 def _print_step(cmd):
     print("    **** " + cmd)
 
-def setup_software(softwareDict, sudoUID, homeDir):
+def setup_software_linux(softwareDict):
     '''
     Given a list of software to install, set up the environment
     - ppa_setup (Literal Block Scalar)
@@ -46,47 +46,92 @@ def setup_software(softwareDict, sudoUID, homeDir):
     - extensions (list)
                 Each argument to pass to the extensions_tool
     '''
+    # Check that we're being run as sudo (Return early)
+    numErrors = 0
+    if os.geteuid() != 0:
+        print("This script must be run as sudo")
+        numErrors += 1
+        return numErrors
+    else:
+        sudoUID = os.getenv('SUDO_UID')
+        homeDir = os.getenv('HOME')
+        if ( sudoUID is None or 0 == sudoUID or homeDir is None or "root" in homeDir):
+            print("This script must be run as sudo, not as root")
+            print("Need the HOME variable to be set to configure software")
+            numErrors += 1
+            return numErrors
     print("====================================================================")
     print("=======    Setting up all software per file description      =======")
     print("====================================================================")
     for software in softwareDict:
-        if 'ppa_setup' in softwareDict[software]:
-            _print_step("ppa is required for {}".format(software))
-            _run_scalar_cmds(softwareDict[software]['ppa_setup'])
-            retcode = subprocess.call(['bash', '-c', 'apt-get update'])
+        if 'ubuntu' in softwareDict[software]:
+            # Get the linux dictionary reference inside the softwareDict
+            linuxDict = softwareDict[software]['ubuntu']
+            if 'ppa_setup' in linuxDict:
+                _print_step("ppa is required for {}".format(software))
+                _run_scalar_cmds(linuxDict['ppa_setup'])
+                retcode = subprocess.call(['bash', '-c', 'apt-get update'])
+        else:
+            continue
 
     for software in softwareDict:
         print("----------------------------------------------------------------")
         print("-------    {}".format(software))
         print("----------------------------------------------------------------")
+        linuxDict = {}
+        if 'ubuntu' in softwareDict[software]:
+            # Get the linux dictionary reference inside the softwareDict
+            linuxDict = softwareDict[software]['ubuntu']
+        else:
+            print("No install instructions defined for ubuntu")
+            continue
         isInstalled = False
-        if 'check_install' in softwareDict[software]:
-            print("Running {} to check install".format(softwareDict[software]['check_install']))
+        if 'check_install' in linuxDict:
+            print("Running {} to check install".format(linuxDict['check_install']))
             try:
-                retcode = subprocess.call(['bash', '-c', softwareDict[software]['check_install']])
+                retcode = subprocess.call(['bash', '-c', linuxDict['check_install']])
                 if 0 == retcode:
                     isInstalled = True
                     _print_step("Software already installed")
             except:
-                print('Could not run {}'.format(softwareDict[software]['check_install']))
+                print('Could not run {}'.format(linuxDict['check_install']))
         if not isInstalled:
-            if 'fetch' in softwareDict[software]:
+            if 'fetch' in linuxDict:
                 _print_step('fetch defined commands')
-                _run_scalar_cmds(softwareDict[software]['fetch'])
-            if 'pre_install' in softwareDict[software]:
+                _run_scalar_cmds(linuxDict['fetch'])
+            if 'pre_install' in linuxDict:
                 _print_step('pre_install defined commands')
-                _run_scalar_cmds(softwareDict[software]['pre_install'])
-            if 'apt_install' in softwareDict[software]:
-                for pkg in softwareDict[software]['apt_install']:
+                _run_scalar_cmds(linuxDict['pre_install'])
+            if 'apt_install' in linuxDict:
+                for pkg in linuxDict['apt_install']:
                     print(subprocess.check_output(['bash', '-c', 'apt-get install', pkg]))
-            if 'install' in softwareDict[software]:
+            if 'install' in linuxDict:
                 _print_step('install defined commands')
-                _run_scalar_cmds(softwareDict[software]['install'])
-            if 'post_install' in softwareDict[software]:
+                _run_scalar_cmds(linuxDict['install'])
+            if 'post_install' in linuxDict:
                 _print_step('post_install defined commands')
-                _run_scalar_cmds(softwareDict[software]['post_install'])
+                _run_scalar_cmds(linuxDict['post_install'])
         
     print("====================================================================")
+    return numErrors
+
+def setup_software_windows(softwareDict):
+    print("Windows config not yet supported")
+    return 1
+
+def setup_software(softwareDict):
+    '''
+    Detect if Windows or Linux and execute the correct sub-function
+    '''
+    if 'posix' == os.name:
+        print('Posix system detected, assuming Ubuntu OS')
+        return setup_software_linux(softwareDict)
+        
+    elif 'nt' == os.name:
+        print('nt system detected, assuming Windows 10')
+        return setup_software_windows(softwareDict)
+    else:
+        print('Could not identify the target system')
 
 
 def parse_software_file(softwareFile):
@@ -108,24 +153,12 @@ def _entrypoint():
     '''
     Parse the arguments provided on the command-line prompt
     '''
+    numErrors = 0
     parser = argparse.ArgumentParser(description='Setup Ubuntu dev environment')
     parser.add_argument('-f', '--software-file', help='Provide path to the software-file')
 
     args = parser.parse_args()
     userVars = vars(args)
-
-    # Check that we're being run as sudo
-    numErrors = 0
-    if os.geteuid() != 0:
-        print("This script must be run as sudo")
-        numErrors += 1
-    else:
-        sudoUID = os.getenv('SUDO_UID')
-        homeDir = os.getenv('HOME')
-        if ( sudoUID is None or 0 == sudoUID or homeDir is None or "root" in homeDir):
-            print("This script must be run as sudo, not as root")
-            print("Need the HOME variable to be set to configure software")
-            numErrors += 1
 
     # Parse the software file
     softwaredict = parse_software_file(userVars['software_file'])
@@ -136,7 +169,7 @@ def _entrypoint():
 
     # Pass things into the "do work" function if checks pass
     if 0 == numErrors:
-        setup_software(softwaredict, sudoUID, homeDir)
+        setup_software(softwaredict)
 
     return numErrors
 
