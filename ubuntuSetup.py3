@@ -2,22 +2,27 @@
 import argparse
 import yaml
 import os, sys, subprocess
+# From this repo, import the module that does the work
+import usrsdevenv.extensionsInstallers as extInst
 
 
 def _run_scalar_cmds(commandString):
-    commands = commandString.split("\n")
-    for command in commands:
-        print("$ {}".format(command))
-        output = subprocess.check_output(['bash', '-c', command])
-        print(output)
-
+    print("$ {}".format(commandString))
+    output = subprocess.check_output(['bash', '-c', commandString])
+    print(output)
+    return output
 
 def _print_step(cmd):
     print("    **** " + cmd)
 
 def setup_software_linux(softwareDict):
     '''
-    Given a list of software to install, set up the environment
+    Given a list of software to install, set up the environment.
+    Literal Block Scalars will be executed as bash commands
+    NOTE - Any operation that takes a Literal Block Scalar set of commands can
+           also accept a '_py' suffixed key, which will cause the lines to be executed
+           within the python environment (after any command line calls).
+           usersdevenv will be added to the python path before execution.
     - ppa_setup (Literal Block Scalar)
                 All lines in the scalar of these are executed and apt update is
                 executed to update the software list as a first pass before any
@@ -42,10 +47,13 @@ def setup_software_linux(softwareDict):
            replace_folder : <folder to replace>
            use_folder : <folder to symlink to>
     - extensions_tool (string)
-                The command to prepend in front of all extensions
+                The command to prepend in front of all listed extensions.
+                If not set, but extensions are listed, will check if there is
+                an in-built handler for that app.
     - extensions (list)
                 Each argument to pass to the extensions_tool
     '''
+    import pwd
     # Check that we're being run as sudo (Return early)
     numErrors = 0
     if os.geteuid() != 0:
@@ -54,6 +62,7 @@ def setup_software_linux(softwareDict):
         return numErrors
     else:
         sudoUID = os.getenv('SUDO_UID')
+        sudoUser = pwd.getpwuid(int(sudoUID))[0]
         homeDir = os.getenv('HOME')
         if ( sudoUID is None or 0 == sudoUID or homeDir is None or "root" in homeDir):
             print("This script must be run as sudo, not as root")
@@ -112,6 +121,16 @@ def setup_software_linux(softwareDict):
                 _print_step('post_install defined commands')
                 _run_scalar_cmds(linuxDict['post_install'])
         
+        if 'extensions' in linuxDict:
+            if 'extensions_tool' in linuxDict:
+                for extension in linuxDict['extensions']:
+                    cmd = "'{} {}'".format(linuxDict['extensions_tool'], extension)
+                    print(subprocess.check_output(['sudo', '-H', '-u', sudoUser,
+                                    'bash', cmd, ]))
+            else: # No cli tool given
+                # Try in-built extensions scripts
+                extInst.extensions_installer(software, 'posix', linuxDict['extensions'])
+        
     print("====================================================================")
     return numErrors
 
@@ -155,21 +174,34 @@ def _entrypoint():
     '''
     numErrors = 0
     parser = argparse.ArgumentParser(description='Setup Ubuntu dev environment')
-    parser.add_argument('-f', '--software-file', help='Provide path to the software-file')
+    parser.add_argument('-f', '--software-file', required=True,
+                         help='Provide path to the software-file')
+    parser.add_argument('-o', '--only-run',
+                         help='Only do the work for one software found in software-file')
 
     args = parser.parse_args()
     userVars = vars(args)
 
     # Parse the software file
     softwaredict = parse_software_file(userVars['software_file'])
+    dictToUse = {}
     if len(softwaredict) == 0:
         print('Could not execute any tasks defined in: {}'.format(
                                         userVars['software_file']))
         numErrors += 1
+    if 'only_run' in userVars and userVars['only_run']:
+        if userVars['only_run'] in softwaredict:
+            dictToUse[userVars['only_run']] = softwaredict[userVars['only_run']]
+        else:
+            print('ERROR - Could not locate key {} in {}'.format(userVars['only_run'],
+                                                                 userVars['software_file']))
+            numErrors += 1
+    else:
+        dictToUse = softwaredict
 
     # Pass things into the "do work" function if checks pass
     if 0 == numErrors:
-        setup_software(softwaredict)
+        setup_software(dictToUse)
 
     return numErrors
 

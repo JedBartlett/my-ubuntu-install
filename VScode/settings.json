@@ -2,5 +2,6 @@
     "python.pythonPath": "/usr/bin/python3",
     "python.jediEnabled": false,
     "git.autofetch": true,
-    "git.confirmSync": false
+    "git.confirmSync": false,
+    "workbench.colorTheme": "Visual Studio Dark"
 }

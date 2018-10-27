@@ -25,6 +25,8 @@
 #       use_folder : <folder to symlink to>
 #   extensions_tool (string)
 #           The command to prepend in front of all extensions
+#   extensions_function
+#           A function to call from usrsdevenv 
 #   extensions (list)
 #           Each argument to pass to the extensions_tool
 # windows:
@@ -54,7 +56,7 @@ latex:
       #   https://tex.stackexchange.com/questions/429714/tlmgr-remote-repository-is-newer-than-local-2017-2018
       tlmgr option repository ftp://tug.org/historic/systems/texlive/2017/tlnet-final
 
-    extensions_tool: tlmgr
+    extensions_tool: tlmgr install
     extensions:
       - lyluatex
 
@@ -69,13 +71,25 @@ lilypond:
       sh ~/Downloads/lilypond-2.18.2-1.linux-64.sh
 
 ##############################################################################
+nodejs:
+  ubuntu:
+    # https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-18-04
+    ppa_setup: |
+      cd ~/Downloads/ && curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh
+      bash ~/Downloads/nodesource_setup.sh
+
+    apt_install:
+      - nodejs
+      - npm
+
+##############################################################################
 vscode:
   ubuntu:
     # Initial setup is easy following instructions on the website:
     # https://code.visualstudio.com/docs/setup/linux
     ppa_setup: |
-      curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-      install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+      curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > ~/Downloads/microsoft.gpg
+      install -o root -g root -m 644 ~/Downloads/microsoft.gpg /etc/apt/trusted.gpg.d/
       echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
     apt_install:
       - code
@@ -96,4 +110,16 @@ vscode:
       - truefire.lilypond
       # Dart (Just in case)
       - Dart-Code.dart-code
+
+chrome:
+  ubuntu:
+    ppa_setup: |
+      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+      echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+    apt_install:
+      - google-chrome-stable
+
+    extensions:
+      # React Developer Tools
+      - fmkadmapgofadopljbjfkapdkoienihi
 ...
