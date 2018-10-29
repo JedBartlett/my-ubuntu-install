@@ -12,6 +12,17 @@ def _run_scalar_cmds(commandString):
     print(output)
     return output
 
+def _report_ids(msg):
+    print('uid, gid = %d, %d; %s' % (os.getuid(), os.getgid(), msg))
+
+def _demote(user_uid, user_gid):
+    def result():
+        _report_ids('starting demotion')
+        os.setgid(user_gid)
+        os.setuid(user_uid)
+        _report_ids('finished demotion')
+    return result
+
 def _print_step(cmd):
     print("    **** " + cmd)
 
@@ -62,7 +73,9 @@ def setup_software_linux(softwareDict):
         return numErrors
     else:
         sudoUID = os.getenv('SUDO_UID')
-        sudoUser = pwd.getpwuid(int(sudoUID))[0]
+        sudoUserRecord = pwd.getpwuid(int(sudoUID))
+        sudoUser = sudoUserRecord.pw_name
+        sudoUserGroup = sudoUserRecord.pw_gid
         homeDir = os.getenv('HOME')
         if ( sudoUID is None or 0 == sudoUID or homeDir is None or "root" in homeDir):
             print("This script must be run as sudo, not as root")
@@ -120,17 +133,19 @@ def setup_software_linux(softwareDict):
             if 'post_install' in linuxDict:
                 _print_step('post_install defined commands')
                 _run_scalar_cmds(linuxDict['post_install'])
-        
+
         if 'extensions' in linuxDict:
+            _print_step('install extensions')
             if 'extensions_tool' in linuxDict:
                 for extension in linuxDict['extensions']:
-                    cmd = "'{} {}'".format(linuxDict['extensions_tool'], extension)
-                    print(subprocess.check_output(['sudo', '-H', '-u', sudoUser,
-                                    'bash', cmd, ]))
+                    print("    - {}".format(extension))
+                    print(subprocess.check_output(
+                                [linuxDict['extensions_tool'], extension],
+                                preexec_fn=_demote(sudoUser, sudoUserGroup)))
             else: # No cli tool given
                 # Try in-built extensions scripts
                 extInst.extensions_installer(software, 'posix', linuxDict['extensions'])
-        
+
     print("====================================================================")
     return numErrors
 

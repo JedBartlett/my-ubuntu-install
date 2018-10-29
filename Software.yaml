@@ -87,10 +87,10 @@ vscode:
   ubuntu:
     # Initial setup is easy following instructions on the website:
     # https://code.visualstudio.com/docs/setup/linux
-    ppa_setup: |
-      curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > ~/Downloads/microsoft.gpg
-      install -o root -g root -m 644 ~/Downloads/microsoft.gpg /etc/apt/trusted.gpg.d/
-      echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
+    # ppa_setup: |
+    #   curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > ~/Downloads/microsoft.gpg
+    #   install -o root -g root -m 644 ~/Downloads/microsoft.gpg /etc/apt/trusted.gpg.d/
+    #   echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
     apt_install:
       - code
     symlink:
@@ -98,7 +98,7 @@ vscode:
         replace_file: ~/.config/Code/User/settings.json
         use_file: ./VScode/settings.json
         
-    extensions_tool: code --install-extension
+    extensions_tool: code --install-extension -f
     extensions:
       # General Tools
       - rogalmic.bash-debug
@@ -108,6 +108,8 @@ vscode:
       - Stephanvs.dot
       - James-Yu.latex-workshop
       - truefire.lilypond
+      # Javascript stuff
+      - vsmobile.vscode-react-native
       # Dart (Just in case)
       - Dart-Code.dart-code
 
