@@ -1,0 +1,5 @@
+# vscode stuff (not official)
+.vscode/
+
+# Python compiled
+*.pyc
