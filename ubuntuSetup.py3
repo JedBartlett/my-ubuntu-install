@@ -6,16 +6,18 @@ import os, sys, subprocess
 import usrsdevenv.extensionsInstallers as extInst
 
 
-def _run_scalar_cmds(commandString):
+def _run_scalar_cmds(commandString, verbose=False):
     print("$ {}".format(commandString))
-    output = subprocess.check_output(['bash', '-c', commandString])
-    print(output)
+    output = subprocess.check_output(['bash', '-c', commandString],
+                                     stderr=subprocess.STDOUT)
+    if verbose:
+        print(output)
     return output
 
 def _print_step(cmd):
     print("    **** " + cmd)
 
-def setup_software_linux(softwareDict):
+def setup_software_linux(softwareDict, verbose):
     '''
     Given a list of software to install, set up the environment.
     Literal Block Scalars will be executed as bash commands
@@ -79,10 +81,12 @@ def setup_software_linux(softwareDict):
             linuxDict = softwareDict[software]['ubuntu']
             if 'ppa_setup' in linuxDict:
                 _print_step("ppa is required for {}".format(software))
-                _run_scalar_cmds(linuxDict['ppa_setup'])
-                retcode = subprocess.call(['bash', '-c', 'apt-get update'])
+                _run_scalar_cmds(linuxDict['ppa_setup'], verbose)
         else:
             continue
+
+    _print_step("Run apt-get update")
+    _run_scalar_cmds('apt-get update', verbose)
 
     for software in softwareDict:
         print("----------------------------------------------------------------")
@@ -108,19 +112,19 @@ def setup_software_linux(softwareDict):
         if not isInstalled:
             if 'fetch' in linuxDict:
                 _print_step('fetch defined commands')
-                _run_scalar_cmds(linuxDict['fetch'])
+                _run_scalar_cmds(linuxDict['fetch'], verbose)
             if 'pre_install' in linuxDict:
                 _print_step('pre_install defined commands')
-                _run_scalar_cmds(linuxDict['pre_install'])
+                _run_scalar_cmds(linuxDict['pre_install'], verbose)
             if 'apt_install' in linuxDict:
                 for pkg in linuxDict['apt_install']:
                     print(subprocess.check_output(['bash', '-c', 'apt-get install', pkg]))
             if 'install' in linuxDict:
                 _print_step('install defined commands')
-                _run_scalar_cmds(linuxDict['install'])
+                _run_scalar_cmds(linuxDict['install'], verbose)
             if 'post_install' in linuxDict:
                 _print_step('post_install defined commands')
-                _run_scalar_cmds(linuxDict['post_install'])
+                _run_scalar_cmds(linuxDict['post_install'], verbose)
 
         if 'extensions' in softwareDict[software]:
             extensionsList = softwareDict[software]['extensions']
@@ -134,7 +138,8 @@ def setup_software_linux(softwareDict):
                     try:
                         output = subprocess.check_output(cmd,
                                                 stderr=subprocess.STDOUT, shell=False)
-                        print(output)
+                        if verbose:
+                            print(output)
                     except Exception as e:
                         print(e)
                         raise Exception('Error occured trying to run extensions installer\n{}'.format(e.output))
@@ -146,21 +151,21 @@ def setup_software_linux(softwareDict):
     print("====================================================================")
     return numErrors
 
-def setup_software_windows(softwareDict):
+def setup_software_windows(softwareDict, verbose):
     print("Windows config not yet supported")
     return 1
 
-def setup_software(softwareDict):
+def setup_software(softwareDict, verbose):
     '''
     Detect if Windows or Linux and execute the correct sub-function
     '''
     if 'posix' == os.name:
         print('Posix system detected, assuming Ubuntu OS')
-        return setup_software_linux(softwareDict)
+        return setup_software_linux(softwareDict, verbose)
         
     elif 'nt' == os.name:
         print('nt system detected, assuming Windows 10')
-        return setup_software_windows(softwareDict)
+        return setup_software_windows(softwareDict, verbose)
     else:
         print('Could not identify the target system')
 
@@ -190,6 +195,8 @@ def _entrypoint():
                          help='Provide path to the software-file')
     parser.add_argument('-o', '--only-run',
                          help='Only do the work for one software found in software-file')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                         help='Print out all the subprocess stdout / stderr')
 
     args = parser.parse_args()
     userVars = vars(args)
@@ -213,8 +220,11 @@ def _entrypoint():
         dictToUse = softwaredict
 
     # Pass things into the "do work" function if checks pass
+    verbose = False
+    if 'verbose' in userVars and userVars['verbose']:
+        verbose = True
     if 0 == numErrors:
-        setup_software(dictToUse)
+        setup_software(dictToUse, verbose)
 
     return numErrors
 
