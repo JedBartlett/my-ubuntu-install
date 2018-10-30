@@ -17,6 +17,10 @@ def extensions_installer(software, platform, extensionsList):
     # https://github.com/mdamien/chrome-extensions-archive/issues/8
     # https://www.chromium.org/administrators/policy-list-3#ExtensionInstallForcelist
 
+        chromeKeysToAddExtensionTo = ['ExtensionInstallForcelist',
+                                      'ExtensionInstallWhitelist']
+        print("Attempting to add the following package IDs to Chrome:")
+        print(extensionsList)
         if 'posix' == platform:
             policyDirPath = '/etc/opt/chrome/policies/managed/'
             policyFilename = 'mypolicy.json'
@@ -28,13 +32,16 @@ def extensions_installer(software, platform, extensionsList):
                 with open(policyFile, 'r') as f:
                     mypolicy = json.load(f)
                 os.remove(policyFile)
-            if ('ExtensionInstallForcelist' in mypolicy
-                    and len(policyFile['ExtensionInstallForcelist']) > 0):
-                mypolicy['ExtensionInstallForcelist'].extend(extensionsList)
-                mypolicy['ExtensionInstallwhitelist'].extend(extensionsList)
+            for chromeKey in chromeKeysToAddExtensionTo:
+                if (chromeKey in mypolicy and len(mypolicy[chromeKey]) > 0):
+                    for extension in extensionsList:
+                        if extension in mypolicy[chromeKey]:
+                            print("{} Already in {}".format(extension, chromeKey))
+                        else:
+                            mypolicy[chromeKey].append(extension)
             else:
                 mypolicy['ExtensionInstallForcelist'] = extensionsList
-                mypolicy['ExtensionInstallwhitelist'] = extensionsList
+                mypolicy['ExtensionInstallWhitelist'] = extensionsList
             with open(policyFile, 'w') as f:
                 json.dump(mypolicy, f, indent=4)
         else:

@@ -23,13 +23,15 @@
 #       use_file : <file to symlink to>
 #       replace_folder : <folder to replace>
 #       use_folder : <folder to symlink to>
-#   extensions_tool (string)
-#           The command to prepend in front of all extensions
-#   extensions_function
-#           A function to call from usrsdevenv 
-#   extensions (list)
-#           Each argument to pass to the extensions_tool
 # windows:
+#
+# extensions_tool (string)
+#           The command to prepend in front of all extensions
+# extensions (list)
+#           Each argument to pass to the extensions_tool
+#           (If items exist here, but no tool is specified, then there may be
+#           an in-built extension script supported by setupDevEditors.py3
+#
 ---
 ##############################################################################
 apt-transport-https:
@@ -56,9 +58,9 @@ latex:
       #   https://tex.stackexchange.com/questions/429714/tlmgr-remote-repository-is-newer-than-local-2017-2018
       tlmgr option repository ftp://tug.org/historic/systems/texlive/2017/tlnet-final
 
-    extensions_tool: tlmgr install
-    extensions:
-      - lyluatex
+  extensions_tool: tlmgr install
+  extensions:
+    - lyluatex
 
 ##############################################################################
 lilypond:
@@ -87,10 +89,10 @@ vscode:
   ubuntu:
     # Initial setup is easy following instructions on the website:
     # https://code.visualstudio.com/docs/setup/linux
-    # ppa_setup: |
-    #   curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > ~/Downloads/microsoft.gpg
-    #   install -o root -g root -m 644 ~/Downloads/microsoft.gpg /etc/apt/trusted.gpg.d/
-    #   echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
+    ppa_setup: |
+      curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > ~/Downloads/microsoft.gpg
+      install -o root -g root -m 644 ~/Downloads/microsoft.gpg /etc/apt/trusted.gpg.d/
+      echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
     apt_install:
       - code
     symlink:
@@ -98,20 +100,20 @@ vscode:
         replace_file: ~/.config/Code/User/settings.json
         use_file: ./VScode/settings.json
         
-    extensions_tool: code --install-extension -f
-    extensions:
-      # General Tools
-      - rogalmic.bash-debug
-      - bat67.markdown-extension-pack
-      - redhat.vscode-yaml
-      # Textual Editing (graphviz, latex, lillypond)
-      - Stephanvs.dot
-      - James-Yu.latex-workshop
-      - truefire.lilypond
-      # Javascript stuff
-      - vsmobile.vscode-react-native
-      # Dart (Just in case)
-      - Dart-Code.dart-code
+  extensions_tool: code --install-extension
+  extensions:
+    # General Tools
+    - rogalmic.bash-debug
+    - bat67.markdown-extension-pack
+    - redhat.vscode-yaml
+    # Textual Editing (graphviz, latex, lillypond)
+    - Stephanvs.dot
+    - James-Yu.latex-workshop
+    - truefire.lilypond
+    # Javascript stuff
+    - vsmobile.vscode-react-native
+    # Dart (Just in case)
+    - Dart-Code.dart-code
 
 chrome:
   ubuntu:
@@ -121,7 +123,7 @@ chrome:
     apt_install:
       - google-chrome-stable
 
-    extensions:
-      # React Developer Tools
-      - fmkadmapgofadopljbjfkapdkoienihi
+  extensions:
+    # React Developer Tools
+    - fmkadmapgofadopljbjfkapdkoienihi
 ...
