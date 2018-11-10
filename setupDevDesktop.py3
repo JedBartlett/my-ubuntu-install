@@ -31,7 +31,7 @@ def _entrypoint():
         if onlySoftwareKey in softwaredict:
             dictToUse[onlySoftwareKey] = softwaredict[onlySoftwareKey]
         else:
-            print('ERROR - Could not locate key {} in {}'.format(onlySoftwareKey,
+            print('ERROR - Could not locate key "{}" in {}'.format(onlySoftwareKey,
                                                                  userVars['software_file']))
             numErrors += 1
     else:
