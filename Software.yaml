@@ -41,6 +41,11 @@ apt-transport-https:
     apt_install:
       - apt-transport-https
 
+htop:
+  ubuntu:
+    apt_install:
+      - htop
+
 ##############################################################################
 latex:
   ubuntu:

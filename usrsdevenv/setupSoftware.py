@@ -10,7 +10,8 @@ def _run_scalar_cmds(commandString, verbose=False):
     output = subprocess.check_output(['bash', '-c', commandString],
                                      stderr=subprocess.STDOUT)
     if verbose:
-        print(output)
+        for outputline in output.splitlines():
+            print(outputline)
     return output
 
 def _print_step(cmd):
@@ -117,7 +118,10 @@ def setup_software_linux(softwareDict, verbose):
                 _run_scalar_cmds(linuxDict['pre_install'], verbose)
             if 'apt_install' in linuxDict:
                 for pkg in linuxDict['apt_install']:
-                    print(subprocess.check_output(['bash', '-c', 'apt-get install', pkg]))
+                    output = subprocess.check_output(['apt-get', 'install', pkg, '-y'])
+                    if verbose:
+                        for outputLine in output.splitlines():
+                            print(outputLine)
             if 'install' in linuxDict:
                 _print_step('install defined commands')
                 _run_scalar_cmds(linuxDict['install'], verbose)
