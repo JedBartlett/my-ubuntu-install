@@ -128,10 +128,26 @@ vscode:
     - Stephanvs.dot
     - James-Yu.latex-workshop
     - truefire.lilypond
+    # Offline Spellchecker - Requires dictionaries to be installed
+    - ban.spellright
     # Javascript stuff
     - vsmobile.vscode-react-native
     # Dart (Just in case)
     - Dart-Code.dart-code
+
+spellrightDictionaries:
+  # In order to get ban.spellright working properly, dictionaries must be downloaded
+  # and made available. See https://github.com/bartosz-antosik/vscode-spellright
+  # For more information
+  ubuntu:
+    fetch: |
+      mkdir -p ~/.config/Code/Dictionaries
+      wget --no-check-certificate --content-disposition \
+        https://github.com/titoBouzout/Dictionaries/tarball/master \
+        -O ~/Downloads/Dictionaries.tar.gz
+    install: |
+      tar -zxvf ~/Downloads/Dictionaries.tar.gz -C ~/.config/Code/Dictionaries/ --strip-components=1
+      rm ~/Downloads/Dictionaries.tar.gz
 
 chrome:
   ubuntu:

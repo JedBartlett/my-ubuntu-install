@@ -3,7 +3,14 @@
     "python.jediEnabled": false,
     "git.autofetch": true,
     "git.confirmSync": false,
-    "workbench.colorTheme": "Visual Studio Dark",
+    "editor.renderWhitespace": "all",
+    "git.enableSmartCommit": true,
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ],
+    "spellright.language": ["English (American)"],
     "latex-workshop.view.pdf.viewer": "tab",
     "latex-workshop.latex.recipes": [
         {
@@ -75,5 +82,7 @@
             ]
         }
     ],
-    "editor.renderWhitespace": "all"
+    "cSpell.userWords": [
+        "sourcecode"
+    ]
 }
