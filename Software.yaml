@@ -84,6 +84,17 @@ lilypond:
       sh ~/Downloads/lilypond-2.18.2-1.linux-64.sh
 
 ##############################################################################
+insync:
+  ubuntu:
+    # https://www.insynchq.com/downloads?start=true#tab3
+    ppa_setup: |
+      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C
+      echo "deb http://apt.insync.io/ubuntu $(lsb_release -c -s) non-free contrib" > /etc/apt/sources.list.d/insync.list
+
+    apt_install:
+      - insync
+
+##############################################################################
 nginx:
   ubuntu:
     # https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/#installing-a-prebuilt-package

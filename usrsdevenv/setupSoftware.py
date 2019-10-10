@@ -145,7 +145,7 @@ def setup_software_linux(softwareDict, verbose):
                             print(output)
                     except Exception as e:
                         print(e)
-                        raise Exception('Error occured trying to run extensions installer\n{}'.format(e.output))
+                        raise Exception('Error occurred trying to run extensions installer\n{}'.format(e.output))
 
             else: # No cli tool given
                 # Try in-built extensions scripts
