@@ -19,5 +19,30 @@
 			"path": "/home/bartlett/git/rubixCube"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"cSpell.words": [
+			"Apolytikion",
+			"Kontakion",
+			"Pascha",
+			"Theotokion",
+			"Trisagion",
+			"appointedst",
+			"bearest",
+			"callest",
+			"comest",
+			"fainteth",
+			"hopeth",
+			"knoweth",
+			"longeth",
+			"lovest",
+			"loveth",
+			"lualatex",
+			"lyluatex",
+			"rejoiceth",
+			"showest",
+			"sufferest",
+			"unoriginate",
+			"workest"
+		]
+	}
 }

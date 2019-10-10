@@ -83,6 +83,11 @@
         }
     ],
     "cSpell.userWords": [
+        "PDFs",
+        "lualatex",
+        "lyluatex",
         "sourcecode"
-    ]
+    ],
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue"
 }
